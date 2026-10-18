@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Streetwise · Travel Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          sulu:      '#9FE870',
+          ink:       '#163300',
+          obsidian:  '#0E0F0C',
+          fog:       '#E8EBE6',
+          paper:     '#FFFFFF',
+          charcoal:  '#454745',
+          pebble:    '#868685',
+          mint:      '#E2F6D5',
+        },
+        fontFamily: {
+          sans:    ['Inter','system-ui','-apple-system','sans-serif'],
+          display: ['"Plus Jakarta Sans"','Inter','sans-serif'],
+        },
+        borderRadius: { field: '10px', card: '20px', pill: '9999px' },
+        boxShadow: {
+          ring: '0 0 0 1px rgba(14,15,12,0.12)',
+          ringSoft: '0 0 0 1px #E8EBE6',
+        },
+        spacing: { '4.5': '18px' }
+      }
+    }
+  }
+</script>
+<style>
+  html,body{ -webkit-font-smoothing:antialiased; }
+  .font-display{ font-feature-settings:"calt" 1; letter-spacing:-0.01em; }
+  .headline{ font-family:'Plus Jakarta Sans',Inter,sans-serif; font-weight:900; line-height:0.9; letter-spacing:-0.02em; font-feature-settings:"calt" 1; }
+  .btn-primary{
+    background:#9FE870; color:#163300; height:48px; border-radius:9999px;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:16px;
+    display:flex; align-items:center; justify-content:center; width:100%; gap:8px;
+    transition:transform .12s ease; border:none; cursor:pointer;
+  }
+  .btn-primary:hover{ transform:scale(1.05); }
+  .btn-primary:active{ transform:scale(0.95); }
+  .btn-primary:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-primary:disabled:hover{ transform:none; }
+  .btn-secondary{
+    height:48px; border-radius:9999px; background:transparent; color:#163300;
+    border:1px solid #868685; font-family:'Inter',sans-serif; font-weight:600; font-size:16px;
+    display:flex; align-items:center; justify-content:center; width:100%; gap:8px;
+    transition:transform .12s ease; cursor:pointer;
+  }
+  .btn-secondary:hover{ transform:scale(1.03); }
+  .btn-secondary:active{ transform:scale(0.96); }
+  .btn-small{
+    height:40px; padding:0 16px; border-radius:9999px; background:#163300; color:#fff;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:14px; border:none; cursor:pointer;
+    display:flex; align-items:center; gap:6px; transition:transform .12s ease;
+  }
+  .btn-small:hover{ transform:scale(1.04); }
+  .btn-small:active{ transform:scale(0.95); }
+
+  .chip{
+    border-radius:16px; padding:8px 16px; font-size:14px; font-weight:600;
+    border:1px solid #868685; background:transparent; color:#454745;
+    cursor:pointer; transition:background .15s ease,color .15s ease,border-color .15s ease;
+    white-space:nowrap; display:inline-flex; align-items:center; gap:6px;
+  }
+  .chip.active{ background:#9FE870; color:#163300; border-color:#9FE870; }
+
+  .card{ background:#FFFFFF; border-radius:20px; box-shadow:0 0 0 1px #E8EBE6; padding:20px; }
+  .option-card{
+    background:#FFFFFF; border-radius:20px; box-shadow:0 0 0 1px #E8EBE6; padding:20px;
+    cursor:pointer; transition:transform .12s ease, box-shadow .12s ease; text-align:left; width:100%;
+  }
+  .option-card:hover{ transform:scale(1.015); box-shadow:0 0 0 1.5px #9FE870; }
+  .option-card:active{ transform:scale(0.98); }
+
+  .field{
+    border-radius:10px; border:1px solid #E8EBE6; background:#FFFFFF; padding:12px 14px;
+    font-family:'Inter',sans-serif; font-size:15px; color:#163300; width:100%;
+  }
+  .field:focus{ outline:none; box-shadow:0 0 0 2px #9FE870; border-color:#9FE870; }
+  .field::placeholder{ color:#868685; }
+
+  .stage-tag{
+    display:inline-flex; align-items:center; gap:6px; background:#E2F6D5; color:#163300;
+    font-size:12px; font-weight:700; padding:6px 12px; border-radius:9999px; letter-spacing:.02em;
+  }
+  .stage-tag.muted{ background:#F6F8F4; color:#454745; box-shadow:0 0 0 1px #E8EBE6; }
+
+  .app-shell{
+    width:100%; max-width:430px; min-height:100vh; background:#FFFFFF; margin:0 auto;
+    display:flex; flex-direction:column; position:relative;
+  }
+  .screen{ display:none; animation:fadeIn .22s ease; }
+  .screen.active{ display:block; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+  .navitem{ display:flex; flex-direction:column; align-items:center; gap:5px; font-size:12px; font-weight:600; color:#868685; background:none; border:none; cursor:pointer; }
+  .navitem.active{ color:#163300; }
+  .navitem .dot{ width:6px; height:6px; border-radius:9999px; background:transparent; margin-top:-2px; }
+  .navitem.active .dot{ background:#9FE870; }
+
+  .pace-track{ height:10px; border-radius:9999px; background:#E8EBE6; overflow:hidden; }
+  .pace-fill{ height:100%; border-radius:9999px; background:#9FE870; transition:width .4s ease; }
+  .pace-fill.over{ background:#163300; }
+
+  input[type=range]{ -webkit-appearance:none; width:100%; height:6px; border-radius:9999px; background:#E8EBE6; }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:22px; height:22px; border-radius:9999px; background:#9FE870;
+    box-shadow:0 0 0 1px rgba(14,15,12,0.12); cursor:pointer; margin-top:-8px;
+  }
+  input[type=range]::-webkit-slider-runnable-track{ height:6px; border-radius:9999px; background:#E8EBE6; }
+
+  .ai-tag{
+    display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; color:#163300;
+    background:#E2F6D5; padding:3px 9px; border-radius:9999px;
+  }
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(14,15,12,0.45); display:none; align-items:flex-end; justify-content:center; z-index:50; }
+  .modal-backdrop.open{ display:flex; }
+  .modal-sheet{ background:#fff; width:100%; max-width:430px; border-radius:20px 20px 0 0; padding:24px 20px 28px; box-shadow:0 0 0 1px #E8EBE6; }
+
+  .icon-dot{ width:6px; height:6px; border-radius:9999px; background:#9FE870; flex-shrink:0; }
+  .icon-circle{ display:flex; align-items:center; justify-content:center; border-radius:9999px; flex-shrink:0; }
+
+  .toggle-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .toggle-track{ width:42px; height:24px; border-radius:9999px; background:#E8EBE6; position:relative; flex-shrink:0; cursor:pointer; transition:background .15s ease; }
+  .toggle-track.on{ background:#9FE870; }
+  .toggle-knob{ width:18px; height:18px; border-radius:9999px; background:#fff; position:absolute; top:3px; left:3px; box-shadow:0 0 0 1px rgba(14,15,12,0.12); transition:left .15s ease; }
+  .toggle-track.on .toggle-knob{ left:21px; }
+
+  .back-link{ font-size:12px; font-weight:600; color:#454745; display:inline-flex; align-items:center; gap:4px; background:#F6F8F4; border:1px solid #E8EBE6; border-radius:9999px; padding:6px 12px; cursor:pointer; margin:0; }
+  .top-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+</style>
+</head>
+<body class="bg-fog font-sans">
+
+<!-- ============== ICON LIBRARY ============== -->
+<template id="icons">
+  <span data-icon="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-[21px] h-[21px]"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>
+  <span data-icon="card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-[21px] h-[21px]"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/></svg></span>
+  <span data-icon="plane"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-[21px] h-[21px]"><path d="M21 3L11 13"/><path d="M21 3l-6.5 18-4-8-8-4 18.5-6z"/></svg></span>
+  <span data-icon="bank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-[21px] h-[21px]"><path d="M3 10l9-6 9 6"/><path d="M4 10v9M9 10v9M15 10v9M20 10v9"/><path d="M2 21h20"/></svg></span>
+  <span data-icon="user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-[21px] h-[21px]"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.5-4 4.5-6 7.5-6s6 2 7.5 6"/></svg></span>
+  <span data-icon="suitcase"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8V5.5A1.5 1.5 0 0110.5 4h3A1.5 1.5 0 0115 5.5V8"/><path d="M3 13h18"/></svg></span>
+  <span data-icon="camera"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z"/><circle cx="12" cy="13" r="3.3"/></svg></span>
+  <span data-icon="warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[13px] h-[13px]"><path d="M12 3.5l9.5 16.5H2.5z"/><path d="M12 9.5v4.5"/><circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none"/></svg></span>
+  <span data-icon="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[13px] h-[13px]"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.3l2.6 2.6L16.5 9"/></svg></span>
+  <span data-icon="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-[14px] h-[14px]"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.3 1 2.1h5c0-.8.4-1.6 1-2.1A6 6 0 0012 3z"/></svg></span>
+  <span data-icon="spark"><svg viewBox="0 0 24 24" fill="currentColor" class="w-[11px] h-[11px]"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg></span>
+  <span data-icon="pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-[14px] h-[14px]"><path d="M12 21s7-7.1 7-12a7 7 0 10-14 0c0 4.9 7 12 7 12z"/><circle cx="12" cy="9" r="2.3"/></svg></span>
+  <span data-icon="plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-5 h-5"><path d="M12 4v16M4 12h16"/></svg></span>
+  <span data-icon="jar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M9 3h6v2.2H9z"/><path d="M7.5 5.2h9L18 9v10a2 2 0 01-2 2H8a2 2 0 01-2-2V9z"/><path d="M6 12.5h12"/></svg></span>
+  <span data-icon="jarbig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8"><path d="M9 3h6v2.2H9z"/><path d="M7.5 5.2h9L18 9v10a2 2 0 01-2 2H8a2 2 0 01-2-2V9z"/><path d="M6 12.5h12"/></svg></span>
+  <span data-icon="edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M4 20l4.3-.9L19.5 7.8a1.8 1.8 0 000-2.5l-1-1a1.8 1.8 0 00-2.5 0L4.8 15.6z"/><path d="M14.2 6.2l3.6 3.6"/></svg></span>
+  <span data-icon="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+  <span data-icon="back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><path d="M19 12H5M11 18l-6-6 6-6"/></svg></span>
+</template>
+
+<div class="app-shell">
+
+  <!-- ===== TOP BAR ===== -->
+  <header class="px-4.5 pt-5 pb-4 bg-paper" style="box-shadow:0 1px 0 0 #E8EBE6;">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-field flex items-center justify-center" style="background:#9FE870;">
+          <span class="text-ink font-display font-black text-sm">W</span>
+        </div>
+        <span class="headline text-[19px] text-obsidian">wise</span>
+      </div>
+      <button class="icon-circle w-9 h-9 bg-fog" style="color:#454745;" data-fill="user"></button>
+    </div>
+    <div>
+      <p class="headline text-[22px] text-obsidian leading-none">Streetwise</p>
+      <p class="text-xs text-pebble font-medium mt-1">Travel Hub</p>
+    </div>
+  </header>
+
+  <main class="px-4.5 pt-5 pb-24 flex-1 overflow-y-auto">
+
+    <!-- ======================================================= -->
+    <!-- SCREEN — WISE HOME (out of scope placeholder) -->
+    <!-- ======================================================= -->
+    <section id="screen-wisehome" class="screen">
+      <span class="stage-tag muted"><span class="icon-dot" style="background:#868685;"></span>WISE HOME</span>
+      <h1 class="headline text-[30px] text-obsidian mt-3 mb-1">Good afternoon</h1>
+      <p class="text-sm text-charcoal mb-5">This is Wise's existing Home tab — our feature lives under Travel.</p>
+      <div class="card mb-4">
+        <p class="text-xs font-semibold text-pebble uppercase tracking-wide mb-1">Balance</p>
+        <p class="headline text-[28px] text-obsidian">£2,140.50</p>
+      </div>
+      <button class="btn-primary" onclick="go('home')"><span data-fill="plane"></span>Go to Travel Hub</button>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- SCREEN — TRAVEL HOME (simplified entry point) -->
+    <!-- ======================================================= -->
+    <section id="screen-home" class="screen active">
+      <span class="stage-tag"><span class="icon-dot"></span>TRAVEL HUB</span>
+      <h1 class="headline text-[34px] text-obsidian mt-3 mb-1">Where to?</h1>
+      <p class="text-sm text-charcoal mb-6">Plan a new trip, or check in on one you're already saving for.</p>
+
+      <div class="space-y-3">
+        <button class="option-card flex items-center gap-4" onclick="startNewPlan()">
+          <div class="icon-circle w-12 h-12" style="background:#9FE870; color:#163300;" data-fill="plus"></div>
+          <div class="flex-1">
+            <p class="font-semibold text-base text-obsidian">Create new plan</p>
+            <p class="text-xs text-pebble mt-0.5">Budget it, then set up a Wise Jar to save for it</p>
+          </div>
+          <span style="color:#868685;" data-fill="arrow"></span>
+        </button>
+
+        <button class="option-card flex items-center gap-4" onclick="go('myplans')">
+          <div class="icon-circle w-12 h-12" style="background:#F6F8F4; box-shadow:0 0 0 1px #E8EBE6; color:#454745;" data-fill="suitcase"></div>
+          <div class="flex-1">
+            <p class="font-semibold text-base text-obsidian">View my plans</p>
+            <p class="text-xs text-pebble mt-0.5" id="home-plan-count">2 plans on the go</p>
+          </div>
+          <span style="color:#868685;" data-fill="arrow"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- SCREEN — MY PLANS (list) -->
+    <!-- ======================================================= -->
+    <section id="screen-myplans" class="screen">
+      <div class="top-row">
+        <span class="stage-tag"><span class="icon-dot"></span>MY PLANS</span>
+        <button class="back-link" onclick="go('home')"><span data-fill="back"></span>Home</button>
+      </div>
+      <h1 class="headline text-[30px] text-obsidian mt-3 mb-4">Your trips</h1>
+      <div id="plans-list" class="space-y-3"></div>
+      <button class="btn-secondary mt-5" onclick="startNewPlan()"><span data-fill="plus"></span>Create another plan</button>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- SCREEN — TRIP DETAIL -->
+    <!-- ======================================================= -->
+    <section id="screen-trip" class="screen">
+      <div class="top-row">
+        <span class="stage-tag" id="trip-status-tag"><span class="icon-dot"></span>SAVING</span>
+        <button class="back-link" onclick="go('myplans')"><span data-fill="back"></span>My plans</button>
+      </div>
+      <h1 class="headline text-[30px] text-obsidian mt-3 mb-4" id="trip-title">—</h1>
+
+      <div class="card mb-4" style="background:#163300;">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="icon-circle w-9 h-9" style="background:#9FE870; color:#163300;" data-fill="jar"></div>
+          <div>
+            <p class="text-xs font-semibold" style="color:#9FE870;">Wise Jar</p>
+            <p class="text-white font-semibold text-sm" id="trip-jar-label">—</p>
+          </div>
+        </div>
+        <div class="pace-track mb-2" style="background:rgba(255,255,255,0.18);"><div class="pace-fill" id="trip-jar-fill" style="width:0%"></div></div>
+        <div class="flex justify-between text-xs" style="color:#D9F2C8;">
+          <span id="trip-jar-pct">0% funded</span>
+          <span id="trip-jar-weekly">—</span>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mb-4">
+        <button class="btn-primary" onclick="addToJar(20)">+ Add £20 to Jar</button>
+      </div>
+
+      <div class="card mb-4">
+        <p class="text-xs font-semibold text-pebble uppercase tracking-wide mb-3">Budget breakdown</p>
+        <div class="space-y-2.5" id="trip-categories"></div>
+      </div>
+
+      <div class="card" style="box-shadow:0 0 0 1px #E8EBE6;">
+        <button class="w-full flex items-center justify-between py-1 text-left" onclick="go('warn')">
+          <span class="text-sm font-semibold text-obsidian">Live pace &amp; warnings</span>
+          <span style="color:#868685;" data-fill="arrow"></span>
+        </button>
+        <button class="w-full flex items-center justify-between py-1 pt-3 mt-2 text-left border-t" style="border-color:#E8EBE6;" onclick="go('scan')">
+          <span class="text-sm font-semibold text-obsidian">Price confidence scanner</span>
+          <span style="color:#868685;" data-fill="arrow"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- SCREEN — CHOOSE BUDGET APPROACH (step 1) -->
+    <!-- ======================================================= -->
+    <section id="screen-choose" class="screen">
+      <div class="top-row">
+        <span class="stage-tag"><span class="icon-dot"></span>STEP 1 OF 3</span>
+        <button class="back-link" onclick="go('home')"><span data-fill="back"></span>Cancel</button>
+      </div>
+      <h1 class="headline text-[32px] text-obsidian mt-3 mb-1">How do you want<br/>to plan?</h1>
+      <p class="text-sm text-charcoal mb-5">Pick one — you can always fine-tune the numbers after.</p>
+
+      <div class="space-y-3">
+        <button class="option-card" onclick="chooseMode('estimate')">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="icon-circle w-10 h-10" style="background:#E2F6D5; color:#163300;" data-fill="spark"></div>
+            <p class="font-semibold text-base text-obsidian">Wise recommended budget</p>
+          </div>
+          <p class="text-xs text-pebble">Tell us your destination and price range — we'll estimate the whole trip for you.</p>
+        </button>
+        <button class="option-card" onclick="chooseMode('own')">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="icon-circle w-10 h-10" style="background:#F6F8F4; box-shadow:0 0 0 1px #E8EBE6; color:#454745;" data-fill="edit"></div>
+            <p class="font-semibold text-base text-obsidian">Create your own budget</p>
+          </div>
+          <p class="text-xs text-pebble">You set the day-to-day total. We'll still add up flights, stays and your itinerary.</p>
+        </button>
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- SCREEN — PLAN DETAILS (step 2) -->
+    <!-- ======================================================= -->
+    <section id="screen-plan" class="screen">
+      <div class="top-row">
+        <span class="stage-tag"><span class="icon-dot"></span>STEP 2 OF 3</span>
+        <button class="back-link" onclick="go('choose')"><span data-fill="back"></span>Back</button>
+      </div>
+      <h1 class="headline text-[32px] text-obsidian mt-3 mb-1">Trip details</h1>
+      <p class="text-sm text-charcoal mb-5" id="plan-mode-sub">Tell us the trip. We'll build the budget.</p>
+
+      <div class="card space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-charcoal mb-1.5 block">Destination</label>
+          <select id="destination" class="field">
+            <option>Lisbon, Portugal</option>
+            <option>Barcelona, Spain</option>
+            <option>Rome, Italy</option>
+            <option>Paris, France</option>
+            <option>Bangkok, Thailand</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-charcoal mb-1.5 block">Trip length (days)</label>
+            <input id="days" type="number" value="10" min="1" class="field">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-charcoal mb-1.5 block">Travellers</label>
+            <input id="travellers" type="number" value="2" min="1" class="field">
+          </div>
+        </div>
+
+        <div id="price-range-block">
+          <label class="text-xs font-semibold text-charcoal mb-1.5 block">Price range</label>
+          <div class="flex gap-2 flex-wrap" id="style-chips">
+            <button class="chip" data-style="budget" onclick="pickChip(this,'style-chips')">Budget</button>
+            <button class="chip active" data-style="mid" onclick="pickChip(this,'style-chips')">Mid-range</button>
+            <button class="chip" data-style="comfort" onclick="pickChip(this,'style-chips')">Comfort</button>
+          </div>
+        </div>
+
+        <div id="own-budget-block" class="hidden">
+          <label class="text-xs font-semibold text-charcoal mb-1.5 block">Day-to-day target spend (£ per day)</label>
+          <input id="own-budget" type="number" placeholder="e.g. 50" class="field">
+          <p class="text-[11px] text-pebble mt-1">We'll multiply this by your trip length, then add flights, stays and your itinerary to get your total.</p>
+        </div>
+
+        <!-- Enter your current costs -->
+        <div class="pt-3 border-t" style="border-color:#E8EBE6;">
+          <p class="text-xs font-semibold text-charcoal mb-0.5">Enter your current costs</p>
+          <p class="text-[11px] text-pebble mb-3">Already know a price? Add it. Leave blank and we'll estimate it for you.</p>
+
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label class="text-[11px] font-semibold text-pebble mb-1 block">Flights (£)</label>
+              <input id="flight-cost" type="number" placeholder="Estimate" class="field">
+            </div>
+            <div>
+              <label class="text-[11px] font-semibold text-pebble mb-1 block">Accommodation (£)</label>
+              <input id="accom-cost" type="number" placeholder="Estimate" class="field">
+            </div>
+          </div>
+
+          <div class="p-3 rounded-field" style="background:#F6F8F4; box-shadow:0 0 0 1px #E8EBE6;">
+            <p class="text-[11px] font-semibold text-charcoal mb-2">Add restaurants &amp; attractions you want to visit</p>
+            <div class="flex gap-2 mb-3">
+              <input id="itinerary-input" type="text" placeholder="e.g. Belém Tower tour" class="field" style="background:#fff;" onkeydown="if(event.key==='Enter'){event.preventDefault();addItineraryItem();}">
+              <button class="btn-small" onclick="addItineraryItem()" data-fill="plus-prefix">Add</button>
+            </div>
+            <div id="itinerary-list" class="divide-y" style="border-color:#E8EBE6;">
+              <p class="text-xs text-pebble">Nothing added yet — try "Belém Tower tour" or "Fado dinner".</p>
+            </div>
+            <div class="flex justify-between items-center mt-2 pt-2 border-t text-xs" style="border-color:#E8EBE6;">
+              <span class="text-charcoal font-semibold">Itinerary subtotal</span>
+              <span class="ai-tag" data-fill="spark-prefix" onclick="openModal()" style="cursor:pointer;"><span id="itinerary-total">£0.00</span></span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary mt-2" onclick="generateBudget()">Generate my budget</button>
+      </div>
+
+      <!-- Budget result -->
+      <div id="budget-result" class="card mt-4 hidden">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-semibold text-pebble uppercase tracking-wide">Your trip budget</p>
+          <span class="ai-tag" id="budget-ai-tag" data-fill="spark-prefix" onclick="openModal()" style="cursor:pointer;">AI estimate</span>
+        </div>
+        <p class="headline text-[30px] text-obsidian" id="total-budget-display">£0</p>
+        <p class="text-xs text-charcoal mb-4" id="daily-target-display">—</p>
+        <div class="space-y-2.5 mb-4" id="category-breakdown"></div>
+        <button class="btn-primary" onclick="go('jar')"><span data-fill="jar"></span>Next: set up your Wise Jar</button>
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- SCREEN — WISE JAR SETUP (step 3) -->
+    <!-- ======================================================= -->
+    <section id="screen-jar" class="screen">
+      <div class="top-row">
+        <span class="stage-tag"><span class="icon-dot"></span>STEP 3 OF 3</span>
+        <button class="back-link" onclick="go('plan')"><span data-fill="back"></span>Back</button>
+      </div>
+      <h1 class="headline text-[32px] text-obsidian mt-3 mb-1">Set up your<br/>Wise Jar</h1>
+      <p class="text-sm text-charcoal mb-5">Your Jar sits inside your Wise balance and fills up until you hit your goal.</p>
+
+      <div class="card mb-4" style="background:#163300;">
+        <div class="flex items-center gap-3">
+          <div class="icon-circle w-11 h-11" style="background:#9FE870; color:#163300;" data-fill="jarbig"></div>
+          <div>
+            <p class="text-xs font-semibold" style="color:#9FE870;">Jar goal</p>
+            <p class="headline text-[26px] text-white" id="jar-goal-display">£0</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex gap-2 mb-4 flex-wrap" id="save-mode-chips">
+          <button class="chip active" data-mode="amount" onclick="pickChip(this,'save-mode-chips'); toggleSaveMode('amount')">Save £X / week</button>
+          <button class="chip" data-mode="deadline" onclick="pickChip(this,'save-mode-chips'); toggleSaveMode('deadline')">Pick my timeline</button>
+        </div>
+
+        <div id="save-amount-mode">
+          <p class="text-sm text-charcoal mb-2">Weekly saving: <span class="font-semibold text-obsidian" id="weekly-amt-label">£85</span></p>
+          <input type="range" id="weekly-slider" min="20" max="250" value="85" step="5" oninput="updateSavingsFromSlider()">
+          <p class="text-sm font-semibold text-ink mt-3" id="funded-by-label">Fully funded by 12 Feb 2027</p>
+        </div>
+
+        <div id="save-deadline-mode" class="hidden">
+          <label class="text-xs font-semibold text-charcoal mb-1.5 block">Save for</label>
+          <select id="deadline-select" class="field mb-3" onchange="updateSavingsFromDeadline()">
+            <option value="1">1 month</option>
+            <option value="2">2 months</option>
+            <option value="3" selected>3 months</option>
+            <option value="6">6 months</option>
+            <option value="12">12 months</option>
+          </select>
+          <div class="flex gap-3">
+            <div class="flex-1 p-3 rounded-field" style="background:#F6F8F4; box-shadow:0 0 0 1px #E8EBE6;">
+              <p class="text-[11px] text-pebble font-semibold">Per week</p>
+              <p class="headline text-[20px] text-obsidian" id="required-weekly">£64</p>
+            </div>
+            <div class="flex-1 p-3 rounded-field" style="background:#F6F8F4; box-shadow:0 0 0 1px #E8EBE6;">
+              <p class="text-[11px] text-pebble font-semibold">Per month</p>
+              <p class="headline text-[20px] text-obsidian" id="required-monthly">£277</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-4 border-t" style="border-color:#E8EBE6;">
+          <div class="toggle-row">
+            <div class="flex items-start gap-2 pr-3">
+              <span data-fill="bulb" style="color:#868685; margin-top:1px;"></span>
+              <span class="text-xs text-charcoal">Hold EUR now while the rate looks good — your call, not advice.</span>
+            </div>
+            <div class="toggle-track" id="hold-eur-toggle" onclick="toggleHoldEur()"><div class="toggle-knob"></div></div>
+          </div>
+          <p class="text-[11px] mt-2 hidden" id="eur-rate-note" style="color:#163300;"></p>
+        </div>
+      </div>
+
+      <button class="btn-primary mt-4" onclick="createJar()"><span data-fill="jar"></span>Create my Wise Jar</button>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- SCREEN — WARNINGS / PACE (prototype, future iteration) -->
+    <!-- ======================================================= -->
+    <section id="screen-warn" class="screen">
+      <div class="top-row">
+        <span class="stage-tag"><span class="icon-dot"></span>LIVE PACE</span>
+        <button class="back-link" onclick="go('trip')"><span data-fill="back"></span>Back to trip</button>
+      </div>
+      <h1 class="headline text-[30px] text-obsidian mt-3 mb-4">Live pace &amp; warnings</h1>
+
+      <div class="card mb-4">
+        <p class="text-xs font-semibold text-pebble uppercase tracking-wide mb-2">Trip pace</p>
+        <div class="pace-track mb-1"><div class="pace-fill over" style="width:74%"></div></div>
+        <div class="flex justify-between text-xs text-charcoal"><span>£670 spent</span><span>£1,290 budget</span></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="card" style="box-shadow:none; background:#F6F8F4;">
+          <p class="text-[11px] text-pebble font-semibold">Days left</p>
+          <p class="headline text-[22px] text-obsidian">5</p>
+        </div>
+        <div class="card" style="box-shadow:none; background:#F6F8F4;">
+          <p class="text-[11px] text-pebble font-semibold">Budget left</p>
+          <p class="headline text-[22px] text-obsidian">£620</p>
+        </div>
+      </div>
+
+      <div class="card" style="background:#FDEEEA; box-shadow:0 0 0 1px rgba(224,67,38,0.25);">
+        <p class="text-sm font-semibold flex items-center gap-1.5" style="color:#B23A1E;"><span data-fill="warn"></span>Projected shortfall</p>
+        <p class="text-xs mt-1" style="color:#7A2E17;">At this pace you'll run out around day 8 — about £150 short. Not an overdraft, just a heads up before it happens.</p>
+        <div class="flex gap-2 mt-3">
+          <button class="btn-secondary text-sm" style="height:40px; border-color:#B23A1E; color:#B23A1E;" onclick="applyFix('topup')">Top up now</button>
+          <button class="btn-secondary text-sm" style="height:40px; border-color:#B23A1E; color:#B23A1E;" onclick="applyFix('lower')">Lower daily target</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- SCREEN — PRICE CONFIDENCE / SCAN (prototype, future iteration) -->
+    <!-- ======================================================= -->
+    <section id="screen-scan" class="screen">
+      <div class="top-row">
+        <span class="stage-tag"><span class="icon-dot"></span>PRICE CONFIDENCE</span>
+        <button class="back-link" onclick="go('trip')"><span data-fill="back"></span>Back to trip</button>
+      </div>
+      <h1 class="headline text-[30px] text-obsidian mt-3 mb-4">Price confidence</h1>
+
+      <div class="card mb-4">
+        <p class="text-xs font-semibold text-pebble uppercase tracking-wide mb-2">Today's pace</p>
+        <div class="pace-track mb-1"><div class="pace-fill" style="width:62%"></div></div>
+        <div class="flex justify-between text-xs text-charcoal"><span>£58 spent</span><span>£93 planned</span></div>
+      </div>
+
+      <div class="card mb-4 text-center py-8 flex flex-col items-center" style="border:1.5px dashed #868685; box-shadow:none;">
+        <div class="mb-2" style="color:#868685;" data-fill="camera"></div>
+        <p class="text-sm font-semibold text-obsidian">Scan a menu, tag or receipt</p>
+        <p class="text-xs text-pebble mt-1">Tap an item below to simulate a scan</p>
+      </div>
+
+      <div class="space-y-2.5" id="scan-items">
+        <button class="card w-full text-left flex items-center justify-between" onclick="scanItem('Pastel de nata', 3.00, 'Custard tart, café counter', 1.00, 1.50)">
+          <div><p class="font-semibold text-sm text-obsidian">Pastel de nata — €3.00</p><p class="text-xs text-pebble">Custard tart, café counter</p></div>
+          <span style="color:#868685;" data-fill="arrow"></span>
+        </button>
+        <button class="card w-full text-left flex items-center justify-between" onclick="scanItem('Bacalhau à Brás', 14, 'Codfish with eggs & potato', 11, 16)">
+          <div><p class="font-semibold text-sm text-obsidian">Bacalhau à Brás — €14</p><p class="text-xs text-pebble">Codfish with eggs & potato</p></div>
+          <span style="color:#868685;" data-fill="arrow"></span>
+        </button>
+        <button class="card w-full text-left flex items-center justify-between" onclick="scanItem('Taxi quote', 22, 'Airport → Baixa', 15, 25)">
+          <div><p class="font-semibold text-sm text-obsidian">Taxi quote — €22</p><p class="text-xs text-pebble">Airport → Baixa</p></div>
+          <span style="color:#868685;" data-fill="arrow"></span>
+        </button>
+      </div>
+
+      <div id="scan-result" class="card mt-4 hidden">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-semibold text-pebble uppercase tracking-wide">Scan result</p>
+          <span class="ai-tag" data-fill="spark-prefix" onclick="openModal()" style="cursor:pointer;">AI translated</span>
+        </div>
+        <p class="font-semibold text-obsidian" id="scan-name">—</p>
+        <p class="text-xs text-charcoal mb-3" id="scan-sub">—</p>
+        <div class="flex items-end gap-2 mb-3">
+          <p class="headline text-[28px] text-obsidian" id="scan-gbp">£0</p>
+          <p class="text-sm text-pebble mb-1" id="scan-eur">(€0)</p>
+        </div>
+        <div id="scan-flag" class="p-3 rounded-field mb-3 hidden" style="background:#FDEEEA; box-shadow:0 0 0 1px rgba(224,67,38,0.25);">
+          <p class="text-xs font-semibold flex items-center gap-1.5" style="color:#B23A1E;"><span data-fill="warn"></span>This looks overpriced</p>
+          <p class="text-xs mt-0.5" style="color:#7A2E17;" id="scan-flag-text">—</p>
+        </div>
+        <div id="scan-fair" class="p-3 rounded-field mb-3 hidden" style="background:#E2F6D5;">
+          <p class="text-xs font-semibold flex items-center gap-1.5" style="color:#163300;"><span data-fill="check"></span>Looks fair</p>
+          <p class="text-xs mt-0.5 text-ink" id="scan-fair-text">—</p>
+        </div>
+        <div class="p-3 rounded-field mb-3" style="background:#F6F8F4; box-shadow:0 0 0 1px #E8EBE6;">
+          <p class="text-xs text-charcoal" id="scan-impact">—</p>
+        </div>
+        <p class="text-xs text-charcoal flex items-center gap-1.5"><span data-fill="card" style="color:#868685;"></span>Card is typically cheaper than cash here — no hidden FX markup.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-paper px-4 py-4 flex justify-between" style="box-shadow:0 -1px 0 0 #E8EBE6; padding-bottom:max(16px, env(safe-area-inset-bottom));">
+    <button class="navitem" data-tab="home" onclick="go('wisehome')" data-fill-stack="home>Home"></button>
+    <button class="navitem" data-tab="cards" data-fill-stack="card>Cards"></button>
+    <button class="navitem" data-tab="travel" onclick="go('home')" data-fill-stack="plane>Travel"></button>
+    <button class="navitem" data-tab="accounts" data-fill-stack="bank>Accounts"></button>
+    <button class="navitem" data-tab="profile" data-fill-stack="user>Profile"></button>
+  </nav>
+</div>
+
+<!-- AI transparency modal -->
+<div class="modal-backdrop" id="modal" onclick="if(event.target===this) closeModal()">
+  <div class="modal-sheet">
+    <div class="flex justify-between items-center mb-3">
+      <p class="headline text-[20px] text-obsidian">How AI is used</p>
+      <button onclick="closeModal()" class="w-8 h-8 rounded-pill bg-fog">✕</button>
+    </div>
+    <div class="space-y-3 text-sm text-charcoal">
+      <div class="p-3 rounded-field" style="background:#E2F6D5;">
+        <p class="font-semibold text-ink mb-1 flex items-center gap-1.5" data-fill="spark-prefix">AI-assisted</p>
+        <p>Estimating typical trip and itinerary costs as ranges based on destination and price range, and translating menu/receipt photos and checking scanned prices against typical local ranges.</p>
+      </div>
+      <div class="p-3 rounded-field" style="background:#F6F8F4; box-shadow:0 0 0 1px #E8EBE6;">
+        <p class="font-semibold text-obsidian mb-1">Plain code — never AI</p>
+        <p>Currency conversion, budget totals, Wise Jar maths and savings timelines. All deterministic, so the numbers you rely on never come from a guess.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- icon injection ----------
+  const ICONS = {};
+  // NOTE: <template> content lives in an inert DocumentFragment, so it must be
+  // queried via .content — document.querySelectorAll() alone can never see inside it.
+  document.querySelector('#icons').content.querySelectorAll('span[data-icon]').forEach(s=>{ ICONS[s.dataset.icon] = s.innerHTML; });
+
+  function hydrateIcons(){
+    document.querySelectorAll('[data-fill]').forEach(el=>{
+      const key = el.dataset.fill;
+      if(ICONS[key] && !el.dataset.done){ el.innerHTML = ICONS[key]; el.dataset.done='1'; }
+    });
+    document.querySelectorAll('[data-fill^="warn-prefix"],[data-fill^="check-prefix"],[data-fill^="spark-prefix"],[data-fill^="plus-prefix"]').forEach(el=>{
+      const key = el.dataset.fill.split('-')[0];
+      if(ICONS[key] && !el.dataset.done){ el.innerHTML = ICONS[key] + el.innerHTML; el.dataset.done='1'; }
+    });
+    document.querySelectorAll('[data-fill-stack]').forEach(el=>{
+      if(el.dataset.done) return;
+      const [key,label] = el.dataset.fillStack.split('>');
+      el.innerHTML = `${ICONS[key]||''}<span>${label}</span><span class="dot"></span>`;
+      el.dataset.done='1';
+    });
+  }
+  hydrateIcons();
+
+  // ---------- navigation ----------
+  function go(screen){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('screen-'+screen).classList.add('active');
+    document.querySelector('main').scrollTo({top:0});
+    if(screen==='myplans') renderPlans();
+    const tab = (screen==='wisehome') ? 'home' : 'travel';
+    document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+    hydrateIcons();
+  }
+
+  function startNewPlan(){
+    planMode = 'estimate';
+    currentBudget = null;
+    itineraryItems = [];
+    renderItinerary();
+    document.getElementById('budget-result').classList.add('hidden');
+    holdEur = false;
+    document.getElementById('hold-eur-toggle').classList.remove('on');
+    document.getElementById('eur-rate-note').classList.add('hidden');
+    go('choose');
+  }
+
+  function chooseMode(mode){
+    planMode = mode;
+    document.getElementById('price-range-block').classList.toggle('hidden', mode==='own');
+    document.getElementById('own-budget-block').classList.toggle('hidden', mode!=='own');
+    document.getElementById('plan-mode-sub').textContent = mode==='own'
+      ? "Set a daily target — we'll total the trip, plus flights, stays and your itinerary."
+      : "We'll estimate your day-to-day spend from the destination and price range.";
+    document.getElementById('budget-ai-tag').style.display = mode==='own' ? 'none' : 'inline-flex';
+    go('plan');
+  }
+
+  function pickChip(el, groupId){
+    document.querySelectorAll('#'+groupId+' .chip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active');
+  }
+  function toggleSaveMode(mode){
+    document.getElementById('save-amount-mode').classList.toggle('hidden', mode!=='amount');
+    document.getElementById('save-deadline-mode').classList.toggle('hidden', mode!=='deadline');
+    if(mode==='deadline') updateSavingsFromDeadline();
+  }
+
+  // ---------- destination meta ----------
+  const destMeta = {
+    'Lisbon, Portugal':  { rate:0.86 },
+    'Barcelona, Spain':  { rate:0.86 },
+    'Rome, Italy':       { rate:0.86 },
+    'Paris, France':     { rate:0.86 },
+    'Bangkok, Thailand': { rate:0.022 },
+  };
+  function currentDestMeta(){
+    return destMeta[document.getElementById('destination').value] || destMeta['Lisbon, Portugal'];
+  }
+
+  // ---------- itinerary auto-pricing ----------
+  let itineraryItems = [];
+  const priceTable = [
+    [['museum','gallery'], 15],
+    [['cooking class','workshop'], 55],
+    [['walking tour'], 18],
+    [['tour','excursion'], 35],
+    [['dinner'], 35],
+    [['lunch'], 18],
+    [['breakfast','coffee','cafe'], 6],
+    [['cathedral','church','basilica'], 8],
+    [['castle','palace','fort','tower'], 13],
+    [['show','concert','fado'], 40],
+    [['cruise','boat'], 28],
+    [['bike','segway'], 20],
+    [['spa'], 45],
+  ];
+  function estimateItineraryPrice(name){
+    const n = name.toLowerCase();
+    for(const [keys, price] of priceTable){ if(keys.some(k=>n.includes(k))) return price; }
+    return 20;
+  }
+  function addItineraryItem(){
+    const input = document.getElementById('itinerary-input');
+    const name = input.value.trim();
+    if(!name) return;
+    const meta = currentDestMeta();
+    const local = estimateItineraryPrice(name);
+    const gbp = Math.round(local*meta.rate*100)/100;
+    itineraryItems.push({ name, gbp });
+    input.value = '';
+    renderItinerary();
+  }
+  function removeItineraryItem(i){ itineraryItems.splice(i,1); renderItinerary(); }
+  function renderItinerary(){
+    const list = document.getElementById('itinerary-list');
+    if(itineraryItems.length===0){
+      list.innerHTML = '<p class="text-xs text-pebble">Nothing added yet — try "Belém Tower tour" or "Fado dinner".</p>';
+    } else {
+      list.innerHTML = itineraryItems.map((it,i)=>`
+        <div class="flex items-center justify-between py-1.5">
+          <div class="flex items-center gap-2"><span class="icon-dot"></span><span class="text-sm text-obsidian">${it.name}</span></div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold text-charcoal">£${it.gbp.toFixed(2)}</span>
+            <button onclick="removeItineraryItem(${i})" class="text-xs text-pebble">✕</button>
+          </div>
+        </div>`).join('');
+    }
+    const total = itineraryItems.reduce((s,it)=>s+it.gbp,0);
+    document.getElementById('itinerary-total').textContent = '£'+total.toFixed(2);
+  }
+
+  // ---------- budget engine ----------
+  let planMode = 'estimate';
+  let currentBudget = null; // holds the just-generated budget, ready to become a Jar
+
+  function generateBudget(){
+    const destination = document.getElementById('destination').value;
+    const days = parseInt(document.getElementById('days').value)||10;
+    const travellers = parseInt(document.getElementById('travellers').value)||2;
+    const style = document.querySelector('#style-chips .chip.active').dataset.style;
+    const perDayByStyle = { budget:55, mid:80, comfort:130 };
+
+    const flightInput = document.getElementById('flight-cost').value;
+    const flightEstimated = flightInput === '';
+    const flightCost = flightEstimated ? 180*travellers : (parseFloat(flightInput)||0);
+
+    const accomInput = document.getElementById('accom-cost').value;
+    const accomEstimated = accomInput === '';
+    const nights = Math.max(days-1, 1);
+    const accomCost = accomEstimated ? Math.round(70*Math.ceil(travellers/2)*nights) : (parseFloat(accomInput)||0);
+
+    const itineraryTotal = itineraryItems.reduce((s,it)=>s+it.gbp,0);
+    const committedTotal = flightCost + accomCost + itineraryTotal;
+
+    let dayToDay;
+    if(planMode==='own'){
+      const dailyTarget = parseFloat(document.getElementById('own-budget').value)||0;
+      dayToDay = dailyTarget*days;
+    } else {
+      dayToDay = Math.round(perDayByStyle[style]*days*(travellers>1? travellers*0.75 : 1));
+    }
+    const daily = Math.round(dayToDay/days);
+    const total = Math.round(committedTotal + dayToDay);
+
+    currentBudget = {
+      destination, days, travellers, total, daily,
+      categories: [
+        {label:'Flights'+(flightEstimated?' (estimated)':''), val: Math.round(flightCost)},
+        {label:'Accommodation'+(accomEstimated?' (estimated)':''), val: Math.round(accomCost)},
+        {label:'Itinerary extras', val: Math.round(itineraryTotal)},
+        {label:'Food', val: Math.round(dayToDay*0.4)},
+        {label:'Transport', val: Math.round(dayToDay*0.2)},
+        {label:'Activities & buffer', val: Math.round(dayToDay*0.4)},
+      ]
+    };
+
+    document.getElementById('total-budget-display').textContent = '£'+total.toLocaleString();
+    document.getElementById('daily-target-display').textContent =
+      `£${daily}/day discretionary spend · ${days} days · £${Math.round(committedTotal).toLocaleString()} already committed`;
+    document.getElementById('category-breakdown').innerHTML = currentBudget.categories.map(c=>`
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-charcoal">${c.label}</span>
+        <span class="font-semibold text-obsidian">£${c.val.toLocaleString()}</span>
+      </div>`).join('');
+
+    document.getElementById('budget-result').classList.remove('hidden');
+    refreshJarGoalDisplay();
+    updateSavingsFromSlider();
+  }
+
+  function updateSavingsFromSlider(){
+    if(!currentBudget) return;
+    const weeklyGbp = parseInt(document.getElementById('weekly-slider').value);
+    const rate = currentDestMeta().rate;
+    const sym = holdEur ? '€' : '£';
+    const weeklyShown = holdEur ? Math.round(weeklyGbp/rate) : weeklyGbp;
+    document.getElementById('weekly-amt-label').textContent = sym+weeklyShown;
+    const weeksNeeded = Math.ceil(currentBudget.total/weeklyGbp);
+    const d = new Date(); d.setDate(d.getDate()+weeksNeeded*7);
+    document.getElementById('funded-by-label').textContent = 'Fully funded by ' + d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  }
+  function updateSavingsFromDeadline(){
+    if(!currentBudget) return;
+    const months = parseInt(document.getElementById('deadline-select').value);
+    const weeks = months*4.33;
+    const rate = currentDestMeta().rate;
+    const sym = holdEur ? '€' : '£';
+    const weeklyGbp = Math.ceil(currentBudget.total/weeks);
+    const monthlyGbp = Math.ceil(currentBudget.total/months);
+    document.getElementById('required-weekly').textContent = sym+(holdEur? Math.round(weeklyGbp/rate) : weeklyGbp);
+    document.getElementById('required-monthly').textContent = sym+(holdEur? Math.round(monthlyGbp/rate) : monthlyGbp);
+  }
+
+  // ---------- hold EUR toggle ----------
+  // rate here is GBP per 1 EUR (e.g. 0.86), same convention as destMeta/currentDestMeta.
+  let holdEur = false;
+  function toggleHoldEur(){
+    holdEur = !holdEur;
+    document.getElementById('hold-eur-toggle').classList.toggle('on', holdEur);
+    const note = document.getElementById('eur-rate-note');
+    const rate = currentDestMeta().rate; // GBP per EUR
+    if(holdEur){
+      note.classList.remove('hidden');
+      note.textContent = `Showing weekly saving and Jar goal in EUR at today's rate (1 EUR = £${rate.toFixed(2)}).`;
+    } else {
+      note.classList.add('hidden');
+    }
+    refreshJarGoalDisplay();
+    updateSavingsFromSlider();
+    updateSavingsFromDeadline();
+  }
+  function refreshJarGoalDisplay(){
+    if(!currentBudget) return;
+    const rate = currentDestMeta().rate;
+    if(holdEur){
+      const eur = currentBudget.total/rate;
+      document.getElementById('jar-goal-display').textContent = '€'+Math.round(eur).toLocaleString();
+    } else {
+      document.getElementById('jar-goal-display').textContent = '£'+currentBudget.total.toLocaleString();
+    }
+  }
+
+  // ---------- plans + Wise Jar ----------
+  let plans = [
+    { id:1, destination:'Lisbon, Portugal', departsWeeks:3, total:1290, saved:410, weekly:85,
+      categories:[{label:'Flights',val:280},{label:'Accommodation',val:420},{label:'Itinerary extras',val:60},{label:'Food',val:260},{label:'Transport',val:130},{label:'Activities & buffer',val:140}] },
+    { id:2, destination:'Rome, Italy', departsWeeks:7, total:850, saved:850, weekly:0,
+      categories:[{label:'Flights',val:220},{label:'Accommodation',val:300},{label:'Itinerary extras',val:40},{label:'Food',val:150},{label:'Transport',val:70},{label:'Activities & buffer',val:70}] },
+  ];
+  let activeTripId = null;
+
+  function renderPlans(){
+    const list = document.getElementById('plans-list');
+    document.getElementById('home-plan-count').textContent = plans.length + (plans.length===1?' plan on the go':' plans on the go');
+    list.innerHTML = plans.map(p=>{
+      const pct = Math.min(100, Math.round((p.saved/p.total)*100));
+      const funded = pct>=100;
+      return `
+      <button class="card w-full text-left" onclick="openTrip(${p.id})">
+        <div class="flex items-center justify-between mb-3">
+          <p class="font-semibold text-obsidian flex items-center gap-1.5"><span style="color:#868685;">${ICONS.pin||''}</span>${p.destination||'Trip'}</p>
+          <span class="ai-tag" style="${funded?'':'background:#F6F8F4;box-shadow:0 0 0 1px #E8EBE6;'}">${funded?'Funded':'Saving'}</span>
+        </div>
+        <div class="pace-track mb-1"><div class="pace-fill" style="width:${pct}%"></div></div>
+        <div class="flex justify-between text-xs text-charcoal"><span>£${(p.saved||0).toLocaleString()} saved</span><span>£${(p.total||0).toLocaleString()} goal · departs in ${p.departsWeeks||0}w</span></div>
+      </button>`;
+    }).join('');
+  }
+
+  function openTrip(id){
+    activeTripId = id;
+    const p = plans.find(x=>x.id===id);
+    const pct = Math.min(100, Math.round((p.saved/p.total)*100));
+    const funded = pct>=100;
+    document.getElementById('trip-title').textContent = p.destination;
+    document.getElementById('trip-status-tag').innerHTML = `<span class="icon-dot"></span>${funded?'FUNDED':'SAVING · DEPARTS IN '+(p.departsWeeks||0)+' WEEKS'}`;
+    document.getElementById('trip-jar-label').textContent = `£${(p.saved||0).toLocaleString()} of £${(p.total||0).toLocaleString()}`;
+    document.getElementById('trip-jar-fill').style.width = pct+'%';
+    document.getElementById('trip-jar-pct').textContent = pct+'% funded';
+    document.getElementById('trip-jar-weekly').textContent = funded ? 'Goal reached' : `£${p.weekly||0}/week going in`;
+    document.getElementById('trip-categories').innerHTML = (p.categories||[]).map(c=>`
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-charcoal">${c.label||''}</span>
+        <span class="font-semibold text-obsidian">£${(c.val||0).toLocaleString()}</span>
+      </div>`).join('');
+    go('trip');
+  }
+
+  function addToJar(amount){
+    const p = plans.find(x=>x.id===activeTripId);
+    if(!p) return;
+    p.saved = Math.min(p.total, p.saved+amount);
+    openTrip(p.id);
+  }
+
+  function createJar(){
+    if(!currentBudget){ alert('Generate a budget first.'); return; }
+    const weeklyMode = document.querySelector('#save-mode-chips .chip.active').dataset.mode;
+    let weekly;
+    if(weeklyMode==='amount'){
+      weekly = parseInt(document.getElementById('weekly-slider').value);
+    } else {
+      const months = parseInt(document.getElementById('deadline-select').value);
+      weekly = Math.ceil(currentBudget.total/(months*4.33));
+    }
+    const newId = Math.max(0,...plans.map(p=>p.id))+1;
+    plans.unshift({
+      id:newId,
+      destination: currentBudget.destination,
+      departsWeeks: 8,
+      total: currentBudget.total,
+      saved: weekly, // first week's contribution already in, demo-friendly
+      weekly,
+      categories: currentBudget.categories
+    });
+    go('myplans');
+  }
+
+  // ---------- scan + price-gauging flag (prototype screen) ----------
+  function scanItem(name, eur, sub, typicalMin, typicalMax){
+    const rate = 0.86;
+    const gbp = Math.round(eur*rate*100)/100;
+    document.getElementById('scan-name').textContent = name;
+    document.getElementById('scan-sub').textContent = sub;
+    document.getElementById('scan-gbp').textContent = '£'+gbp.toFixed(2);
+    document.getElementById('scan-eur').textContent = '(€'+eur.toFixed(2)+')';
+    const daily = (currentBudget && currentBudget.daily) || 93;
+    const pct = Math.round((gbp/daily)*100);
+    document.getElementById('scan-impact').textContent = `That's ${pct}% of today's £${daily} budget.`;
+
+    const flagged = eur > typicalMax;
+    document.getElementById('scan-flag').classList.toggle('hidden', !flagged);
+    document.getElementById('scan-fair').classList.toggle('hidden', flagged);
+    if(flagged){
+      const overBy = Math.round(((eur/typicalMax)-1)*100);
+      document.getElementById('scan-flag-text').textContent =
+        `Typically €${typicalMin.toFixed(2)}–€${typicalMax.toFixed(2)} nearby — this is about ${overBy}% above the usual price.`;
+    } else {
+      document.getElementById('scan-fair-text').textContent =
+        `Within the usual range for this area (€${typicalMin.toFixed(2)}–€${typicalMax.toFixed(2)}).`;
+    }
+    document.getElementById('scan-result').classList.remove('hidden');
+    hydrateIcons();
+  }
+
+  function applyFix(type){
+    if(type==='topup'){ alert('Top-up of £150 added — shortfall cleared.'); }
+    else { alert('Daily target lowered to £68 for remaining days.'); }
+  }
+
+  function openModal(){ document.getElementById('modal').classList.add('open'); }
+  function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+  // init
+  renderPlans();
+  document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active', b.dataset.tab==='travel'));
+</script>
+</body>
+</html>
